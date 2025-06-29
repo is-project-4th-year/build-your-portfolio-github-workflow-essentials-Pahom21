@@ -444,3 +444,435 @@ function setupTypingAnimation() {
 
 // Initialize typing animation
 document.addEventListener('DOMContentLoaded', setupTypingAnimation);
+
+// Portfolio Performance Optimizations & Advanced Features
+
+// Performance: Throttle utility for scroll events
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    }
+}
+
+// Performance: Debounce utility for input events
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Performance: Optimized scroll event handling
+function setupOptimizedScrollEffects() {
+    const navbar = document.querySelector('.navbar');
+    const scrollToTopBtn = document.querySelector('.scroll-to-top');
+    
+    // Throttled scroll handler for better performance
+    const throttledScrollHandler = throttle((scrollY) => {
+        // Batch DOM updates using requestAnimationFrame
+        requestAnimationFrame(() => {
+            updateNavbarBackground(navbar, scrollY);
+            updateScrollToTopVisibility(scrollToTopBtn, scrollY);
+        });
+    }, 16); // ~60fps
+    
+    window.addEventListener('scroll', () => {
+        throttledScrollHandler(window.scrollY);
+    }, { passive: true });
+}
+
+// Performance: Lazy Loading Implementation
+function setupLazyLoading() {
+    const images = document.querySelectorAll('img[data-src]');
+    
+    // Use modern IntersectionObserver for better performance
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                loadImage(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        // Load images 100px before they come into view
+        rootMargin: '100px 0px',
+        threshold: 0.01
+    });
+    
+    function loadImage(img) {
+        // Create a promise-based image loader
+        return new Promise((resolve, reject) => {
+            const newImg = new Image();
+            newImg.onload = () => {
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                img.classList.add('loaded');
+                resolve();
+            };
+            newImg.onerror = reject;
+            newImg.src = img.dataset.src;
+        });
+    }
+    
+    images.forEach(img => {
+        img.classList.add('lazy');
+        imageObserver.observe(img);
+    });
+}
+
+// Performance: Efficient Animation Frame Management
+class AnimationManager {
+    constructor() {
+        this.animations = new Set();
+        this.isRunning = false;
+    }
+    
+    add(callback) {
+        this.animations.add(callback);
+        if (!this.isRunning) {
+            this.start();
+        }
+    }
+    
+    remove(callback) {
+        this.animations.delete(callback);
+        if (this.animations.size === 0) {
+            this.stop();
+        }
+    }
+    
+    start() {
+        this.isRunning = true;
+        this.tick();
+    }
+    
+    stop() {
+        this.isRunning = false;
+    }
+    
+    tick() {
+        if (!this.isRunning) return;
+        
+        this.animations.forEach(callback => {
+            try {
+                callback();
+            } catch (error) {
+                console.error('Animation callback error:', error);
+                this.animations.delete(callback);
+            }
+        });
+        
+        if (this.animations.size > 0) {
+            requestAnimationFrame(() => this.tick());
+        } else {
+            this.stop();
+        }
+    }
+}
+
+// Performance: Optimized skill bar animations
+function setupOptimizedSkillAnimations() {
+    const skillBars = document.querySelectorAll('.skill-progress');
+    const animationManager = new AnimationManager();
+    let animatedBars = new Set();
+    
+    const skillBarObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !animatedBars.has(entry.target)) {
+                animateSkillBarOptimized(entry.target);
+                animatedBars.add(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.3,
+        rootMargin: '0px 0px -100px 0px'
+    });
+    
+    function animateSkillBarOptimized(bar) {
+        const targetWidth = parseInt(bar.getAttribute('data-width'));
+        let currentWidth = 0;
+        const increment = targetWidth / 60; // 60 frames animation
+        
+        const animateFrame = () => {
+            currentWidth += increment;
+            if (currentWidth >= targetWidth) {
+                currentWidth = targetWidth;
+                bar.style.width = currentWidth + '%';
+                animationManager.remove(animateFrame);
+            } else {
+                bar.style.width = currentWidth + '%';
+            }
+        };
+        
+        animationManager.add(animateFrame);
+    }
+    
+    skillBars.forEach(bar => skillBarObserver.observe(bar));
+}
+
+// Performance: Theme Management with System Preference Detection
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
+    
+    // Check for system preference
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const currentTheme = localStorage.getItem('theme') || 
+                        (prefersDarkScheme.matches ? 'dark' : 'light');
+    
+    // Apply theme efficiently
+    applyTheme(currentTheme);
+    
+    // Listen for system theme changes
+    prefersDarkScheme.addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+    
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    function applyTheme(theme) {
+        // Use CSS custom properties for efficient theme switching
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        // Update meta theme-color for mobile browsers
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', 
+                theme === 'dark' ? '#1a1a1a' : '#ffffff'
+            );
+        }
+    }
+    
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        applyTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Add transition class for smooth theme switching
+        document.documentElement.classList.add('theme-transition');
+        setTimeout(() => {
+            document.documentElement.classList.remove('theme-transition');
+        }, 300);
+    }
+}
+
+// Performance: Optimized Contact Form with Input Debouncing
+function setupOptimizedContactForm() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    
+    // Debounced validation for better performance
+    const debouncedValidation = debounce(() => {
+        validateFormOptimized();
+    }, 300);
+    
+    // Setup optimized real-time validation
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        // Use passive listeners where possible
+        input.addEventListener('input', debouncedValidation, { passive: true });
+        input.addEventListener('blur', validateFormOptimized);
+    });
+    
+    function validateFormOptimized() {
+        // Use DocumentFragment for efficient DOM manipulation
+        const fragment = document.createDocumentFragment();
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            const isFieldValid = validateFieldOptimized(input);
+            if (!isFieldValid) isValid = false;
+        });
+        
+        return isValid;
+    }
+    
+    function validateFieldOptimized(input) {
+        const errorElement = document.getElementById(input.name + 'Error');
+        if (!errorElement) return true;
+        
+        // Clear previous error efficiently
+        if (errorElement.textContent) {
+            errorElement.textContent = '';
+        }
+        input.classList.remove('error');
+        
+        // Validation logic here...
+        return true; // Simplified for example
+    }
+}
+
+// Performance: Resource Preloading
+function setupResourcePreloading() {
+    // Preload critical images
+    const criticalImages = [
+        '/images/hero-bg.jpg',
+        '/images/profile.jpg'
+    ];
+    
+    criticalImages.forEach(src => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = src;
+        document.head.appendChild(link);
+    });
+    
+    // Preload fonts
+    const criticalFonts = [
+        '/fonts/primary-font.woff2',
+        '/fonts/heading-font.woff2'
+    ];
+    
+    criticalFonts.forEach(src => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'font';
+        link.type = 'font/woff2';
+        link.crossOrigin = 'anonymous';
+        link.href = src;
+        document.head.appendChild(link);
+    });
+}
+
+// Performance: Memory Management for Event Listeners
+class EventManager {
+    constructor() {
+        this.listeners = new Map();
+    }
+    
+    add(element, event, handler, options = {}) {
+        const key = `${element}-${event}`;
+        
+        // Store reference for cleanup
+        if (!this.listeners.has(key)) {
+            this.listeners.set(key, []);
+        }
+        this.listeners.get(key).push({ handler, options });
+        
+        // Add event listener
+        element.addEventListener(event, handler, options);
+    }
+    
+    remove(element, event, handler) {
+        const key = `${element}-${event}`;
+        element.removeEventListener(event, handler);
+        
+        // Clean up reference
+        if (this.listeners.has(key)) {
+            const handlers = this.listeners.get(key);
+            const index = handlers.findIndex(h => h.handler === handler);
+            if (index > -1) {
+                handlers.splice(index, 1);
+                if (handlers.length === 0) {
+                    this.listeners.delete(key);
+                }
+            }
+        }
+    }
+    
+    cleanup() {
+        this.listeners.clear();
+    }
+}
+
+// Performance: Optimized Intersection Observer Pool
+class ObserverPool {
+    constructor() {
+        this.observers = new Map();
+    }
+    
+    getObserver(options) {
+        const key = JSON.stringify(options);
+        
+        if (!this.observers.has(key)) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const callback = entry.target._observerCallback;
+                    if (callback && typeof callback === 'function') {
+                        callback(entry);
+                    }
+                });
+            }, options);
+            
+            this.observers.set(key, observer);
+        }
+        
+        return this.observers.get(key);
+    }
+    
+    observe(element, callback, options = {}) {
+        element._observerCallback = callback;
+        const observer = this.getObserver(options);
+        observer.observe(element);
+    }
+    
+    unobserve(element) {
+        this.observers.forEach(observer => {
+            observer.unobserve(element);
+        });
+        delete element._observerCallback;
+    }
+}
+
+// Performance: Initialize optimized features
+function initializePerformanceFeatures() {
+    // Setup performance optimizations
+    setupOptimizedScrollEffects();
+    setupLazyLoading();
+    setupOptimizedSkillAnimations();
+    setupThemeToggle();
+    setupOptimizedContactForm();
+    setupResourcePreloading();
+    
+    // Initialize managers
+    window.eventManager = new EventManager();
+    window.observerPool = new ObserverPool();
+    window.animationManager = new AnimationManager();
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (window.eventManager) window.eventManager.cleanup();
+        if (window.animationManager) window.animationManager.stop();
+    });
+}
+
+// Performance: Critical resource loading
+document.addEventListener('DOMContentLoaded', () => {
+    // Use requestIdleCallback for non-critical initialization
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initializePerformanceFeatures, { timeout: 2000 });
+    } else {
+        // Fallback for browsers without requestIdleCallback
+        setTimeout(initializePerformanceFeatures, 100);
+    }
+});
+
+// Performance: Service Worker Registration (if available)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
