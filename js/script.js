@@ -386,7 +386,7 @@ function setupTypingAnimation() {
     if (!typingElement) return;
     
     const config = {
-        texts: ['Web Developer', 'Problem Solver', 'Tech Enthusiast'],
+        texts: ['Web Developer', 'Fullstack Developer', 'Problem Solver', 'Tech Enthusiast', 'Machine Learning Engineer'],
         typeSpeed: 100,
         deleteSpeed: 50,
         pauseDuration: 2000
@@ -623,54 +623,54 @@ function setupOptimizedSkillAnimations() {
 }
 
 // Performance: Theme Management with System Preference Detection
-function setupThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) return;
+// function setupThemeToggle() {
+//     const themeToggle = document.getElementById('theme-toggle');
+//     if (!themeToggle) return;
     
-    // Check for system preference
-    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    const currentTheme = localStorage.getItem('theme') || 
-                        (prefersDarkScheme.matches ? 'dark' : 'light');
+//     // Check for system preference
+//     const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+//     const currentTheme = localStorage.getItem('theme') || 
+//                         (prefersDarkScheme.matches ? 'dark' : 'light');
     
-    // Apply theme efficiently
-    applyTheme(currentTheme);
+//     // Apply theme efficiently
+//     applyTheme(currentTheme);
     
-    // Listen for system theme changes
-    prefersDarkScheme.addEventListener('change', (e) => {
-        if (!localStorage.getItem('theme')) {
-            applyTheme(e.matches ? 'dark' : 'light');
-        }
-    });
+//     // Listen for system theme changes
+//     prefersDarkScheme.addEventListener('change', (e) => {
+//         if (!localStorage.getItem('theme')) {
+//             applyTheme(e.matches ? 'dark' : 'light');
+//         }
+//     });
     
-    themeToggle.addEventListener('click', toggleTheme);
+//     themeToggle.addEventListener('click', toggleTheme);
     
-    function applyTheme(theme) {
-        // Use CSS custom properties for efficient theme switching
-        document.documentElement.setAttribute('data-theme', theme);
+//     function applyTheme(theme) {
+//         // Use CSS custom properties for efficient theme switching
+//         document.documentElement.setAttribute('data-theme', theme);
         
-        // Update meta theme-color for mobile browsers
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (metaThemeColor) {
-            metaThemeColor.setAttribute('content', 
-                theme === 'dark' ? '#1a1a1a' : '#ffffff'
-            );
-        }
-    }
+//         // Update meta theme-color for mobile browsers
+//         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+//         if (metaThemeColor) {
+//             metaThemeColor.setAttribute('content', 
+//                 theme === 'dark' ? '#1a1a1a' : '#ffffff'
+//             );
+//         }
+//     }
     
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+//     function toggleTheme() {
+//         const currentTheme = document.documentElement.getAttribute('data-theme');
+//         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
-        applyTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
+//         applyTheme(newTheme);
+//         localStorage.setItem('theme', newTheme);
         
-        // Add transition class for smooth theme switching
-        document.documentElement.classList.add('theme-transition');
-        setTimeout(() => {
-            document.documentElement.classList.remove('theme-transition');
-        }, 300);
-    }
-}
+//         // Add transition class for smooth theme switching
+//         document.documentElement.classList.add('theme-transition');
+//         setTimeout(() => {
+//             document.documentElement.classList.remove('theme-transition');
+//         }, 300);
+//     }
+// }
 
 // Performance: Optimized Contact Form with Input Debouncing
 function setupOptimizedContactForm() {
@@ -722,8 +722,7 @@ function setupOptimizedContactForm() {
 function setupResourcePreloading() {
     // Preload critical images
     const criticalImages = [
-        '/images/hero-bg.jpg',
-        '/images/profile.jpg'
+        '/images/profile-photo.JPG'
     ];
     
     criticalImages.forEach(src => {
@@ -735,20 +734,20 @@ function setupResourcePreloading() {
     });
     
     // Preload fonts
-    const criticalFonts = [
-        '/fonts/primary-font.woff2',
-        '/fonts/heading-font.woff2'
-    ];
+    // const criticalFonts = [
+    //     '/fonts/primary-font.woff2',
+    //     '/fonts/heading-font.woff2'
+    // ];
     
-    criticalFonts.forEach(src => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'font';
-        link.type = 'font/woff2';
-        link.crossOrigin = 'anonymous';
-        link.href = src;
-        document.head.appendChild(link);
-    });
+    // criticalFonts.forEach(src => {
+    //     const link = document.createElement('link');
+    //     link.rel = 'preload';
+    //     link.as = 'font';
+    //     link.type = 'font/woff2';
+    //     link.crossOrigin = 'anonymous';
+    //     link.href = src;
+    //     document.head.appendChild(link);
+    // });
 }
 
 // Performance: Memory Management for Event Listeners
@@ -837,7 +836,7 @@ function initializePerformanceFeatures() {
     setupOptimizedScrollEffects();
     setupLazyLoading();
     setupOptimizedSkillAnimations();
-    setupThemeToggle();
+    // setupThemeToggle();
     setupOptimizedContactForm();
     setupResourcePreloading();
     
